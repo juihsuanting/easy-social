@@ -19,6 +19,32 @@
       <video class="post-media" controls src="{{ media_url(content.media_filename) }}"></video>
     {% endif %}
   {% endif %}
+  {% if content.is_poll %}
+    {% set user_voted_id = poll_votes.get(content.id) if poll_votes is defined else None %}
+    {% set ns = namespace(total=0) %}
+    {% for opt in content.poll_options %}
+      {% set ns.total = ns.total + (opt.votes | length) %}
+    {% endfor %}
+    <div class="poll">
+      {% for opt in content.poll_options %}
+        {% set count = opt.votes | length %}
+        {% set pct = ((count / ns.total * 100) | round(1)) if ns.total > 0 else 0 %}
+        {% if user_voted_id is not none or content.author_id == current_user.id %}
+          <div class="poll-result {% if user_voted_id == opt.id %}poll-result-voted{% endif %}">
+            <div class="poll-bar" style="width: {{ pct }}%"></div>
+            <span class="poll-option-text">{{ opt.text }}</span>
+            <span class="poll-option-pct">{{ pct }}%</span>
+          </div>
+        {% else %}
+          <form method="post" action="{{ url_for('social.vote_poll', post_id=content.id) }}">
+            <input type="hidden" name="option_id" value="{{ opt.id }}">
+            <button type="submit" class="poll-option-btn">{{ opt.text }}</button>
+          </form>
+        {% endif %}
+      {% endfor %}
+      <p class="muted">{{ ns.total }} vote{{ 's' if ns.total != 1 else '' }}</p>
+    </div>
+  {% endif %}
   <footer class="post-actions">
     <a href="{{ url_for('social.post_detail', post_id=content.id) }}">{{ comment_counts[content.id] if comment_counts is defined and content.id in comment_counts else content.comments.count() }} comments</a>
     {% if content.author_id != current_user.id %}

@@ -7,11 +7,25 @@
       <button type="button" class="link-button" data-media-preview-clear>Remove</button>
     </div>
   </div>
+  <div id="poll-fields" hidden>
+    <input name="poll_option_1" maxlength="100" placeholder="Option 1">
+    <input name="poll_option_2" maxlength="100" placeholder="Option 2">
+    <input name="poll_option_3" maxlength="100" placeholder="Option 3 (optional)">
+    <input name="poll_option_4" maxlength="100" placeholder="Option 4 (optional)">
+  </div>
   <div class="composer-actions">
     <label class="file-picker">
       <span>Attach image/video</span>
       <input type="file" name="media" accept="image/*,video/*" data-media-input>
     </label>
+    <button type="button" id="poll-toggle">Add Poll</button>
     <button type="submit">Post</button>
   </div>
 </form>
+<script>
+  document.getElementById('poll-toggle').addEventListener('click', function () {
+    var fields = document.getElementById('poll-fields');
+    fields.hidden = !fields.hidden;
+    this.textContent = fields.hidden ? 'Add Poll' : 'Remove Poll';
+  });
+</script>
