@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import hmac as _hmac
 import io
-import random
+import secrets
 
 from flask import (
     Blueprint,
@@ -26,7 +28,15 @@ _CAPTCHA_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
 def generate_captcha_text(length: int = 5) -> str:
-    return "".join(random.choices(_CAPTCHA_CHARS, k=length))
+    return "".join(secrets.choice(_CAPTCHA_CHARS) for _ in range(length))
+
+
+def _captcha_hmac(text: str) -> str:
+    return _hmac.new(
+        current_app.config["SECRET_KEY"].encode(),
+        text.upper().encode(),
+        hashlib.sha256,
+    ).hexdigest()
 
 
 @bp.route("/captcha")
@@ -34,7 +44,9 @@ def captcha():
     from captcha.image import ImageCaptcha
 
     text = generate_captcha_text()
-    session["captcha_answer"] = text
+    session["captcha_hash"] = _captcha_hmac(text)
+    if current_app.config.get("TESTING"):
+        session["captcha_answer"] = text
     image = ImageCaptcha()
     data = image.generate(text)
     response = send_file(io.BytesIO(data.read()), mimetype="image/png")
@@ -63,9 +75,13 @@ def register():
 
         if current_app.config.get("CAPTCHA_ENABLED", True):
             captcha_input = request.form.get("captcha", "").strip().upper()
+            stored_hash = session.pop("captcha_hash", None)
+            session.pop("captcha_answer", None)
             if not captcha_input:
                 error = "Please complete the CAPTCHA."
-            elif captcha_input != session.pop("captcha_answer", None):
+            elif not stored_hash or not _hmac.compare_digest(
+                _captcha_hmac(captcha_input), stored_hash
+            ):
                 error = "CAPTCHA is incorrect. Please try again."
 
         if not error:

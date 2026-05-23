@@ -76,11 +76,11 @@ def test_captcha_image_returns_png(captcha_client):
 @pytest.mark.integration
 def test_captcha_sets_session_answer(captcha_client):
     with captcha_client.session_transaction() as sess:
-        assert "captcha_answer" not in sess
+        assert "captcha_hash" not in sess
     captcha_client.get("/auth/captcha")
     with captcha_client.session_transaction() as sess:
-        assert "captcha_answer" in sess
-        assert len(sess["captcha_answer"]) == 5
+        assert "captcha_hash" in sess
+        assert len(sess["captcha_hash"]) == 64  # SHA-256 hex digest
 
 
 @pytest.mark.integration
@@ -144,6 +144,8 @@ def test_captcha_cannot_be_reused(captcha_client):
         },
         follow_redirects=True,
     )
+    with captcha_client.session_transaction() as sess:
+        assert "captcha_hash" not in sess
     captcha_client.post("/auth/logout", follow_redirects=True)
     response = captcha_client.post(
         "/auth/register",
