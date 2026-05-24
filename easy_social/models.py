@@ -99,6 +99,10 @@ class Post(db.Model):
             "(length(body) > 0) OR (media_filename IS NOT NULL) OR (repost_of_id IS NOT NULL) OR is_poll",
             name="ck_post_has_content",
         ),
+        CheckConstraint(
+            "NOT is_poll OR length(body) > 0",
+            name="ck_poll_requires_body",
+        ),
     )
 
     @property
@@ -141,6 +145,7 @@ class PollOption(db.Model):
 
     __table_args__ = (
         UniqueConstraint("post_id", "position", name="uq_poll_option_position"),
+        CheckConstraint("position >= 1 AND position <= 4", name="ck_poll_option_position_range"),
     )
 
 

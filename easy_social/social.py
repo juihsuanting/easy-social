@@ -114,6 +114,10 @@ def create_post():
     option_texts = [t for t in option_texts if t]
     is_poll = len(option_texts) >= 2
 
+    if len(option_texts) == 1:
+        flash("A poll needs at least 2 options.", "error")
+        return redirect(request.referrer or url_for("social.feed"))
+
     if is_poll and not body:
         flash("Please add a question for your poll.", "error")
         return redirect(request.referrer or url_for("social.feed"))
