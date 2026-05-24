@@ -6,3 +6,4 @@ python-dotenv==1.0.1
 psycopg[binary]==3.2.13
 supabase==2.24.0
 captcha==0.7.1
+Pillow>=10.0.0

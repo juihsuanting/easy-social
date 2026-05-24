@@ -47,8 +47,12 @@ def captcha():
     session["captcha_hash"] = _captcha_hmac(text)
     if current_app.config.get("TESTING"):
         session["captcha_answer"] = text
-    image = ImageCaptcha()
-    data = image.generate(text)
+    try:
+        image = ImageCaptcha()
+        data = image.generate(text)
+    except Exception as exc:
+        current_app.logger.error("CAPTCHA generation failed: %s", exc)
+        return "CAPTCHA unavailable", 503
     response = send_file(io.BytesIO(data.read()), mimetype="image/png")
     response.headers["Cache-Control"] = "no-store"
     return response
