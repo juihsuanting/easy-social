@@ -18,7 +18,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required, login_user, logout_user
-from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer
 
 from .extensions import db
 from .models import User
@@ -51,7 +51,7 @@ def _decode_captcha_token(token: str) -> str | None:
     s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"], salt=_CAPTCHA_TOKEN_SALT)
     try:
         return s.loads(token, max_age=_CAPTCHA_MAX_AGE)
-    except (BadSignature, SignatureExpired):
+    except Exception:
         return None
 
 
