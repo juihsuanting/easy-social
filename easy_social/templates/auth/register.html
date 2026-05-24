@@ -16,8 +16,9 @@
         Password
         <input name="password" type="password" autocomplete="new-password" required>
       </label>
+      <input type="hidden" name="captcha_token" id="captcha-token" value="{{ captcha_token }}">
       <div class="captcha-group">
-        <img src="{{ url_for('auth.captcha') }}" alt="CAPTCHA" id="captcha-img">
+        <img src="{{ url_for('auth.captcha', token=captcha_token) }}" alt="CAPTCHA" id="captcha-img">
         <button type="button" id="captcha-refresh">Refresh</button>
       </div>
       <label>
@@ -30,7 +31,12 @@
   </section>
   <script>
     document.getElementById('captcha-refresh').addEventListener('click', function () {
-      document.getElementById('captcha-img').src = '{{ url_for("auth.captcha") }}?t=' + Date.now();
+      fetch('{{ url_for("auth.captcha_token_new") }}')
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('captcha-img').src = data.url + '&t=' + Date.now();
+          document.getElementById('captcha-token').value = data.token;
+        });
     });
   </script>
 {% endblock %}
