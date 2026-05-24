@@ -83,9 +83,6 @@ def test_poll_vote_count(app):
 
 # ── Integration tests ─────────────────────────────────────────────────────────
 
-pytestmark = pytest.mark.integration
-
-
 @pytest.mark.integration
 def test_create_poll_post(client, app):
     register(client, "alice")
@@ -234,7 +231,7 @@ def poll_live_server(poll_ui_app):
     thread.join(timeout=5)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def clean_poll_db(poll_ui_app):
     with poll_ui_app.app_context():
         db.session.query(PollVote).delete()
@@ -284,7 +281,7 @@ def _logout_ui(browser):
 
 
 @pytest.mark.ui
-def test_create_poll_and_vote_via_ui(browser, poll_live_server):
+def test_create_poll_and_vote_via_ui(browser, poll_live_server, clean_poll_db):
     _register_ui(browser, poll_live_server, "alice")
 
     poll_toggle = browser.find_element(By.ID, "poll-toggle")
