@@ -12,6 +12,7 @@
     <input name="poll_option_2" maxlength="100" placeholder="Option 2">
     <input name="poll_option_3" maxlength="100" placeholder="Option 3 (optional)">
     <input name="poll_option_4" maxlength="100" placeholder="Option 4 (optional)">
+    <p id="poll-error" style="color:red;display:none;">A poll needs at least 2 options.</p>
   </div>
   <div class="composer-actions">
     <label class="file-picker">
@@ -23,12 +24,26 @@
   </div>
 </form>
 <script>
+  var pollFields = document.getElementById('poll-fields');
+  var pollError = document.getElementById('poll-error');
+
   document.getElementById('poll-toggle').addEventListener('click', function () {
-    var fields = document.getElementById('poll-fields');
-    fields.hidden = !fields.hidden;
-    this.textContent = fields.hidden ? 'Add Poll' : 'Remove Poll';
-    if (fields.hidden) {
-      fields.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+    pollFields.hidden = !pollFields.hidden;
+    this.textContent = pollFields.hidden ? 'Add Poll' : 'Remove Poll';
+    if (pollFields.hidden) {
+      pollFields.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+      pollError.style.display = 'none';
+    }
+  });
+
+  document.querySelector('form.composer').addEventListener('submit', function (e) {
+    if (pollFields.hidden) return;
+    var filled = Array.from(pollFields.querySelectorAll('input')).filter(function (i) { return i.value.trim(); });
+    if (filled.length === 1) {
+      e.preventDefault();
+      pollError.style.display = 'block';
+    } else {
+      pollError.style.display = 'none';
     }
   });
 </script>
