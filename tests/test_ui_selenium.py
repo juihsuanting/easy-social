@@ -33,6 +33,7 @@ def ui_app():
                 "UPLOAD_FOLDER": str(temp_path / "uploads"),
                 "MEDIA_STORAGE_BACKEND": "local",
                 "WTF_CSRF_ENABLED": False,
+                "CAPTCHA_ENABLED": False,
             }
         )
         with app.app_context():
