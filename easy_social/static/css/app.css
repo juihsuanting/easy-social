@@ -383,3 +383,61 @@ button.secondary {
     flex-direction: column;
   }
 }
+
+/* Poll styles */
+.poll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.poll-option-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.poll-option-btn:hover {
+  opacity: 0.85;
+}
+
+.poll-result {
+  position: relative;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #f0f0f0;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poll-result-voted {
+  font-weight: 600;
+}
+
+.poll-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.2;
+  transition: width 0.3s;
+}
+
+.poll-option-text,
+.poll-option-pct {
+  position: relative;
+}
+
+.poll-option-pct {
+  font-size: 0.85rem;
+  color: #555;
+}
