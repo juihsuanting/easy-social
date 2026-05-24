@@ -27,5 +27,8 @@
     var fields = document.getElementById('poll-fields');
     fields.hidden = !fields.hidden;
     this.textContent = fields.hidden ? 'Add Poll' : 'Remove Poll';
+    if (fields.hidden) {
+      fields.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+    }
   });
 </script>

@@ -108,15 +108,15 @@ def test_create_poll_post(client, app):
 
 
 @pytest.mark.integration
-def test_poll_requires_at_least_two_options(client):
+def test_poll_requires_at_least_two_options(client, app):
     register(client, "alice")
     response = client.post(
         "/posts",
         data={"body": "Question?", "poll_option_1": "Only one"},
         follow_redirects=True,
     )
-    with pytest.raises(Exception):
-        assert Post.query.filter_by(body="Question?", is_poll=True).one()
+    with app.app_context():
+        assert Post.query.filter_by(body="Question?", is_poll=True).count() == 0
 
 
 @pytest.mark.integration

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
+from sqlalchemy.exc import IntegrityError
 from flask_login import current_user, login_required
 from sqlalchemy import desc, func, or_
 from sqlalchemy.orm import joinedload
@@ -156,6 +157,10 @@ def vote_poll(post_id: int):
         flash("This post is not a poll.", "error")
         return redirect(request.referrer or url_for("social.feed"))
 
+    if post.author_id == current_user.id:
+        flash("You cannot vote on your own poll.", "error")
+        return redirect(request.referrer or url_for("social.feed"))
+
     option_id = request.form.get("option_id", type=int)
     option = PollOption.query.filter_by(id=option_id, post_id=post.id).first_or_404()
 
@@ -163,8 +168,12 @@ def vote_poll(post_id: int):
         flash("You have already voted on this poll.", "error")
         return redirect(request.referrer or url_for("social.feed"))
 
-    db.session.add(PollVote(post=post, option=option, user_id=current_user.id))
-    db.session.commit()
+    try:
+        db.session.add(PollVote(post=post, option=option, user_id=current_user.id))
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        flash("You have already voted on this poll.", "error")
     return redirect(request.referrer or url_for("social.feed"))
 
 
